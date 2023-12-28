@@ -7,7 +7,6 @@ import {
   handleResponseArgType,
   handleSessionResArgType,
 } from "./types";
-import { IUserSession } from "../components/v1/auth/auth.types";
 
 export const handleResponse = ({
   res,
@@ -59,43 +58,4 @@ export const abortSessionWithResponse = async ({
   session.endSession();
 
   return handleResponse({ res, data, status, message, err });
-};
-
-export const createNewSession = (req: IRequest): IUserSession => ({
-  used: 1,
-  deviceId: req.fingerprint.deviceHash,
-  sessionId: ulid(),
-  lastEventTime: new Date(),
-  maxLifespan: appConfig.authConfigs.sessionLifespan,
-  maxInactivity: appConfig.authConfigs.maxInactivity,
-  isLoggedOut: false,
-  device: {
-    info: req.fingerprint.components.userAgent,
-    geoip: {
-      lat: null,
-      long: null,
-    },
-  },
-});
-
-export const failedLoginDelayTime = (
-  lastLoginAt: Date,
-  failedLoginAttempt: number
-) => {
-  const now = Date.now();
-  let timePassed = lastLoginAt ? now - lastLoginAt.getTime() : 0;
-
-  if (failedLoginAttempt < 5) {
-    return {
-      allowedLoginAttempt: 5,
-      msBeforeNext: 0,
-    };
-  } else {
-    let delay = 1000 * 60 * 30; //30mins
-
-    return {
-      allowedLoginAttempt: 5,
-      msBeforeNext: Math.max(delay - timePassed, 0),
-    };
-  }
 };

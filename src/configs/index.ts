@@ -7,7 +7,7 @@ const appConfig = {
   isDev: env.NODE_ENV === "development",
   mongoDbUri: env.dbUri || "",
   environment: env.NODE_ENV,
-  port: Number(env.PORT) || 9087,
+  port: Number(env.PORT) || 9002,
   hashPepper: env.pepper,
   authConfigs: {
     saltRounds: 10,

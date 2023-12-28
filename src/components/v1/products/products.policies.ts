@@ -1,6 +1,6 @@
 import { z } from "zod";
 import platformConstants from "../../../configs/platfromContants";
-import { isValidId } from "../../../utils/customLibrary";
+import { isValidId } from "../../../utils/helpers";
 
 const { productCategories } = platformConstants;
 

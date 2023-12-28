@@ -48,7 +48,12 @@ router.get(
   policyMiddleware(searchProductSchema, "query"),
   validateTokenMiddleware,
   requireAuth,
-  grantRoles(["admin", "supplier"]),
+  searchProduct
+);
+
+router.get(
+  "/search-product",
+  policyMiddleware(searchProductSchema, "query"),
   searchProduct
 );
 const productRouter = router;

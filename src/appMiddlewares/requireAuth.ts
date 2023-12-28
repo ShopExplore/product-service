@@ -1,8 +1,7 @@
 import { NextFunction, Response } from "express";
-import { IRequest } from "../../../../utils/types";
-import { handleResponse } from "../../../../utils/response";
-import UserModel from "../../user/user.model";
-import UserAuth from "../auth.model";
+import { IRequest } from "../utils/types";
+import { handleResponse } from "../utils/response";
+import { publishCustomerEvent } from "../utils/events/customerEvent";
 
 const requireAuthMiddleware = async (
   req: IRequest,
@@ -20,44 +19,31 @@ const requireAuthMiddleware = async (
   const { ref, role } = req.decoded;
 
   try {
-    const user = await UserModel.findById(ref);
+    // const user = await UserModel.findById(ref);
 
-    if (!user) {
-      return handleResponse({
-        res,
-        message: "authorization failed",
-        status: 401,
-      });
-    }
-
-    const userAuth = await UserAuth.findOne({
-      User: user._id,
-    });
-
-    if (!userAuth) {
-      return handleResponse({
-        res,
-        message: "authorization failed",
-        status: 401,
-      });
-    }
-
-    // if (
-    //   Date.now() - new Date(userAuth.lastLoginAt).getTime() >
-    //   session.maxInactivity
-    // ) {
+    // if (!user) {
     //   return handleResponse({
     //     res,
-    //     message: "session has expired, pls login",
+    //     message: "authorization failed",
     //     status: 401,
     //   });
     // }
 
-    // userAuth.lastLoginAt = new Date();
-    // await userAuth.save();
+    // const userAuth = await UserAuth.findOne({
+    //   User: user._id,
+    // });
 
-    req.user = user;
-    req.userAuth = userAuth;
+    // if (!userAuth) {
+    //   return handleResponse({
+    //     res,
+    //     message: "authorization failed",
+    //     status: 401,
+    //   });
+    // }
+
+    const response = await publishCustomerEvent({ event: "GET_USER", data: ref });
+    req.user = response.user
+    req.userAuth = response.userAuth;
     req.role = role;
     return next();
   } catch (err) {

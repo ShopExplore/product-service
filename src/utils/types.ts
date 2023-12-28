@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
-import { IUser } from "../components/v1/user/user.types";
 import { ClientSession, Types } from "mongoose";
-import { IAuth } from "../components/v1/auth/auth.types";
+import { IAuth, IUser } from "../utils/general/types";
 
 export interface GeoInfo {
   range: [number, number];

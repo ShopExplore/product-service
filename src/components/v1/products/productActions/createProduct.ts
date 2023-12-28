@@ -5,7 +5,7 @@ import { z } from "zod";
 import { createProductSchema } from "../products.policies";
 import ProductModel from "../products.model";
 
-async function createProduct(req: IRequest, res: Response) {
+async function createProductService(req: IRequest, res: Response) {
   const {
     productName,
     category,
@@ -15,8 +15,7 @@ async function createProduct(req: IRequest, res: Response) {
     quantityInStock,
     lowStockAt,
   }: z.infer<typeof createProductSchema> = req.body;
-
-  const { user } = req;
+  const user = req.user;
   try {
     const product = await ProductModel.findOne({
       supplierId: user._id,
@@ -60,4 +59,4 @@ async function createProduct(req: IRequest, res: Response) {
   }
 }
 
-export default createProduct;
+export default createProductService;
