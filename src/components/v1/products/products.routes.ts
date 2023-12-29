@@ -4,7 +4,7 @@ import requireAuth from "../../../appMiddlewares/requireAuth";
 import { validateTokenMiddleware } from "../../../appMiddlewares/authMiddlewares";
 import {
   createProductSchema,
-  deleteProductSchema,
+  productIdSchema,
   editProductSchema,
   searchProductSchema,
 } from "./products.policies";
@@ -27,7 +27,7 @@ router.post(
 
 router.delete(
   "/:productId",
-  policyMiddleware(deleteProductSchema, "params"),
+  policyMiddleware(productIdSchema, "params"),
   validateTokenMiddleware,
   requireAuth,
   grantRoles(["admin", "supplier"]),

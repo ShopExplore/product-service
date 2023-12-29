@@ -18,7 +18,7 @@ export const createProductSchema = z.object({
   lowStockAt: z.number(),
 });
 
-export const deleteProductSchema = z.object({
+export const productIdSchema = z.object({
   productId: z.string().refine((id) => isValidId(id)),
 });
 
