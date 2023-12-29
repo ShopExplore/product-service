@@ -1,11 +1,12 @@
 import { Router, Response } from "express";
+import { Channel } from "amqplib";
 
 import { handleResponse } from "../../utils/response";
 import productRouter from "./products/products.routes";
 
 const router = Router();
 
-router.use("/products", productRouter);
+router.use("/products", productRouter());
 
 router.get("/", (_req, res: Response) => {
   handleResponse({

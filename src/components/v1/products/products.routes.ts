@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { Channel } from "amqplib";
+
 import policyMiddleware from "../../../appMiddlewares/policy.middlewares";
 import requireAuth from "../../../appMiddlewares/requireAuth";
 import { validateTokenMiddleware } from "../../../appMiddlewares/authMiddlewares";
@@ -16,45 +18,49 @@ import searchProduct from "./productActions/searchProducts";
 
 const router = Router();
 
-router.post(
-  "/",
-  policyMiddleware(createProductSchema),
-  validateTokenMiddleware,
-  requireAuth,
-  grantRoles(["supplier"]),
-  createProduct
-);
+const productRouter = (channel: Channel, router: Router) => {
 
-router.delete(
-  "/:productId",
-  policyMiddleware(deleteProductSchema, "params"),
-  validateTokenMiddleware,
-  requireAuth,
-  grantRoles(["admin", "supplier"]),
-  deleteProduct
-);
+  router.post(
+    "/",
+    policyMiddleware(createProductSchema),
+    validateTokenMiddleware,
+    requireAuth(channel),
+    grantRoles(["supplier"]),
+    createProduct
+  );
 
-router.patch(
-  "/edit-product",
-  policyMiddleware(editProductSchema),
-  validateTokenMiddleware,
-  requireAuth,
-  grantRoles(["supplier"]),
-  editProduct
-);
+  router.delete(
+    "/:productId",
+    policyMiddleware(deleteProductSchema, "params"),
+    validateTokenMiddleware,
+    requireAuth(channel),
+    grantRoles(["admin", "supplier"]),
+    deleteProduct
+  );
 
-router.get(
-  "/search-product",
-  policyMiddleware(searchProductSchema, "query"),
-  validateTokenMiddleware,
-  requireAuth,
-  searchProduct
-);
+  router.patch(
+    "/edit-product",
+    policyMiddleware(editProductSchema),
+    validateTokenMiddleware,
+    requireAuth(channel),
+    grantRoles(["supplier"]),
+    editProduct
+  );
 
-router.get(
-  "/search-product",
-  policyMiddleware(searchProductSchema, "query"),
-  searchProduct
-);
-const productRouter = router;
+  router.get(
+    "/search-product",
+    policyMiddleware(searchProductSchema, "query"),
+    validateTokenMiddleware,
+    requireAuth(channel),
+    searchProduct
+  );
+
+  router.get(
+    "/search-product",
+    policyMiddleware(searchProductSchema, "query"),
+    searchProduct
+  );
+}
+
+// const productRouter = router;
 export default productRouter;

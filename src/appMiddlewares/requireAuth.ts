@@ -1,58 +1,42 @@
 import { NextFunction, Response } from "express";
+import { Channel } from "amqplib";
+
 import { IRequest } from "../utils/types";
 import { handleResponse } from "../utils/response";
-import { publishCustomerEvent } from "../utils/events/customerEvent";
+// import { publishCustomerEvent } from "../utils/event";
+import { publishMessage } from "../utils/event";
+import appConfig from "../configs";
 
-const requireAuthMiddleware = async (
-  req: IRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  if (!req.decoded) {
-    return handleResponse({
-      res,
-      message: "authentication is required",
-      status: 401,
-    });
-  }
+const {CUSTOMER_BINDING_KEY} = appConfig
 
-  const { ref, role } = req.decoded;
+const requireAuthMiddleware =
+  (messageBrokerCannel: Channel) => async (req: IRequest, res: Response, next: NextFunction) => {
+    if (!req.decoded) {
+      return handleResponse({
+        res,
+        message: "authentication is required",
+        status: 401,
+      });
+    }
 
-  try {
-    // const user = await UserModel.findById(ref);
+    const { ref, role } = req.decoded;
+    try {
+      // const response = await publishCustomerEvent({ event: "GET_USER", data: ref });
 
-    // if (!user) {
-    //   return handleResponse({
-    //     res,
-    //     message: "authorization failed",
-    //     status: 401,
-    //   });
-    // }
+      const response = publishMessage(messageBrokerCannel, CUSTOMER_BINDING_KEY, ref.toString());
+      console.log("response from message broker ", response)
 
-    // const userAuth = await UserAuth.findOne({
-    //   User: user._id,
-    // });
-
-    // if (!userAuth) {
-    //   return handleResponse({
-    //     res,
-    //     message: "authorization failed",
-    //     status: 401,
-    //   });
-    // }
-
-    const response = await publishCustomerEvent({ event: "GET_USER", data: ref });
-    req.user = response.user
-    req.userAuth = response.userAuth;
-    req.role = role;
-    return next();
-  } catch (err) {
-    return handleResponse({
-      res,
-      message: "Authentication error",
-      status: 401,
-      err,
-    });
-  }
-};
+      req.user = response.user;
+      req.userAuth = response.userAuth;
+      req.role = role;
+      return next();
+    } catch (err) {
+      return handleResponse({
+        res,
+        message: "Authentication error",
+        status: 401,
+        err,
+      });
+    }
+  };
 export default requireAuthMiddleware;
