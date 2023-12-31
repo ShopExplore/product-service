@@ -1,4 +1,5 @@
 import { Router, Response } from "express";
+import { Channel } from "amqplib";
 
 import { handleResponse } from "../../utils/response";
 import productRouter from "./products/products.routes";

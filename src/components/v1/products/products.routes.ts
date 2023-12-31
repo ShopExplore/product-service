@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import policyMiddleware from "../../../appMiddlewares/policy.middlewares";
 import requireAuth from "../../../appMiddlewares/requireAuth";
 import { validateTokenMiddleware } from "../../../appMiddlewares/authMiddlewares";
@@ -56,5 +57,6 @@ router.get(
   policyMiddleware(searchProductSchema, "query"),
   searchProduct
 );
+
 const productRouter = router;
 export default productRouter;

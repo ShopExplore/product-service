@@ -1,7 +1,14 @@
 import { NextFunction, Response } from "express";
+import { Channel } from "amqplib";
+import { channel } from "..";
+
 import { IRequest } from "../utils/types";
 import { handleResponse } from "../utils/response";
-import { publishCustomerEvent } from "../utils/events/customerEvent";
+// import { publishCustomerEvent } from "../utils/event";
+import { publishMessage } from "../utils/event";
+import appConfig from "../configs";
+
+const { CUSTOMER_BINDING_KEY } = appConfig;
 
 const requireAuthMiddleware = async (
   req: IRequest,
@@ -19,32 +26,18 @@ const requireAuthMiddleware = async (
   const { ref, role } = req.decoded;
 
   try {
-    // const user = await UserModel.findById(ref);
+    // const response = await publishCustomerEvent({ event: "GET_USER", data: ref });
 
-    // if (!user) {
-    //   return handleResponse({
-    //     res,
-    //     message: "authorization failed",
-    //     status: 401,
-    //   });
-    // }
+    const response = publishMessage(
+      (await channel()) as Channel,
+      CUSTOMER_BINDING_KEY,
+      ref.toString()
+    );
+    console.log("response from message broker ", response);
 
-    // const userAuth = await UserAuth.findOne({
-    //   User: user._id,
-    // });
-
-    // if (!userAuth) {
-    //   return handleResponse({
-    //     res,
-    //     message: "authorization failed",
-    //     status: 401,
-    //   });
-    // }
-
-    const response = await publishCustomerEvent({ event: "GET_USER", data: ref });
-    req.user = response.user
-    req.userAuth = response.userAuth;
-    req.role = role;
+    // req.user = response.user;
+    // req.userAuth = response.userAuth;
+    // req.role = role;
     return next();
   } catch (err) {
     return handleResponse({
